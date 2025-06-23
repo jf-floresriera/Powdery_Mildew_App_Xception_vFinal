@@ -11,6 +11,8 @@ import uuid
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
 
 model = load_model("modelo_mildiu_mobilenet.h5")
 class_names = [
