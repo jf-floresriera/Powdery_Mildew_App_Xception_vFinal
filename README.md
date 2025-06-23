@@ -98,5 +98,5 @@ Esta herramienta es solo para fines educativos y de investigación. No sustituye
 
 📬 Contact
 Jesús Enrique Flores Riera
-Email: [tu_correo@ejemplo.com]
+Email: [jfloresr@unal.edu.co]
 GitHub: jf-floresriera
