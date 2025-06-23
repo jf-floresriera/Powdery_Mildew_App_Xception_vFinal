@@ -8,6 +8,39 @@
     body {
       background-image: url('https://i.postimg.cc/1z3sPptY/arvejas.jpg');
     }
+
+    .tooltip {
+      display: inline-block;
+      cursor: pointer;
+      position: relative;
+      color: #007BFF;
+      font-weight: bold;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 280px;
+      background-color: #ffffff;
+      color: #000;
+      text-align: left;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      position: absolute;
+      z-index: 1;
+      bottom: 130%;
+      left: 50%;
+      margin-left: -140px;
+      opacity: 0;
+      transition: opacity 0.4s;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    .tooltip:hover .tooltiptext,
+    .tooltip:focus .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -46,7 +79,7 @@
         <p><strong>Confianza / Confidence:</strong> {{ confidence }}%</p>
 
         {% if top_predictions %}
-          <h3>Top 3 predicciones / Top 3 Predictions</h3>
+          <h3>📊 Top 3 predicciones / Top 3 Predictions</h3>
           <ul>
             {% for clase, prob in top_predictions %}
               <li>{{ clase }}: {{ prob }}%</li>
@@ -55,7 +88,7 @@
         {% endif %}
 
         {% if probs_dict %}
-          <h3>Probabilidades por clase / Probabilities per class</h3>
+          <h3>📈 Probabilidades por clase / Probabilities per class</h3>
           <ul>
             {% for clase, prob in probs_dict.items() %}
               <li>{{ clase }}: {{ prob }}%</li>
@@ -63,13 +96,45 @@
           </ul>
         {% endif %}
 
-        <p><strong>Tamaño original de la imagen / Original image size:</strong> {{ original_size }}</p>
-        <p><strong>Tiempo de inferencia / Inference time:</strong> {{ inference_time }} s</p>
-        <p><strong>Entropía de la predicción / Prediction entropy:</strong> {{ entropy }}</p>
+        <p>
+          <strong>📐 Tamaño original de la imagen / Original image size:</strong> 
+          {{ original_size }} 
+          <span class="tooltip">px
+            <span class="tooltiptext">
+              🔍 <strong>px = píxeles / pixels</strong><br>
+              Unidad para medir dimensiones de imágenes digitales. Representa el ancho × alto.<br>
+              — Used to check image resolution before preprocessing.
+            </span>
+          </span>
+        </p>
+
+        <p>
+          <strong>⚙️ Tiempo de inferencia / Inference time:</strong> 
+          {{ inference_time }} 
+          <span class="tooltip">s
+            <span class="tooltiptext">
+              ⏱️ <strong>s = segundos / seconds</strong><br>
+              Tiempo que tardó el modelo en hacer su predicción.<br>
+              — Useful to monitor model performance.
+            </span>
+          </span>
+        </p>
+
+        <p>
+          <strong>📉 Entropía de la predicción / Prediction entropy:</strong> 
+          {{ entropy }} 
+          <span class="tooltip">nats
+            <span class="tooltiptext">
+              📊 <strong>nats = unidad logarítmica de incertidumbre</strong><br>
+              Cuanto mayor, más dispersa e insegura fue la predicción.<br>
+              — A low entropy means the model was more confident.
+            </span>
+          </span>
+        </p>
       {% endif %}
 
       {% if image_data %}
-        <h3>Imagen cargada / Uploaded image</h3>
+        <h3>🖼️ Imagen cargada / Uploaded image</h3>
         <img id="imagenCargada" src="{{ image_data }}" alt="Imagen subida" style="max-width: 300px; border: 1px solid #ccc; border-radius: 10px;">
       {% endif %}
     </div>
@@ -77,6 +142,10 @@
     {% if prediction %}
       <button id="resetBtn" class="secondary-button" onclick="resetPrediction()">
         🔁 Hacer otra lectura / Make another prediction
+      </button>
+
+      <button class="secondary-button" onclick="descargarResultado()">
+        📥 Descargar resultado / Download result
       </button>
     {% endif %}
 
@@ -118,6 +187,35 @@
       if (resetBtn) resetBtn.style.display = "none";
 
       alert("Lectura reiniciada / Prediction cleared.");
+    }
+
+    function descargarResultado() {
+      const prediccion = "{{ prediction }}";
+      const confianza = "{{ confidence }}";
+      const tiempo = "{{ inference_time }}";
+      const entropia = "{{ entropy }}";
+      const originalSize = "{{ original_size }}";
+
+      const topPredicciones = [
+        {% for clase, prob in top_predictions %}
+          "{{ clase }}: {{ prob }}%",
+        {% endfor %}
+      ];
+
+      const fecha = new Date().toLocaleString("es-CO");
+
+      const contenido = [
+        "Fecha,Clase Predicha,Confianza (%),Tiempo de Inferencia (s),Entropía (nats),Tamaño Imagen,Top 3 Predicciones",
+        `${fecha},"${prediccion}",${confianza},${tiempo},${entropia},"${originalSize}","${topPredicciones.join(' | ')}"`
+      ].join("\n");
+
+      const blob = new Blob([contenido], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const enlace = document.createElement("a");
+      enlace.href = url;
+      enlace.download = `resultado_prediccion_${new Date().toISOString().slice(0,10)}.csv`;
+      enlace.click();
+      URL.revokeObjectURL(url);
     }
   </script>
 </body>
