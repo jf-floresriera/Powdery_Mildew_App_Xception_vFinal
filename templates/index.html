@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Powdery Mildew Classifier</title>
+  <title>Clasificador de Mildiu Polvoso / Powdery Mildew Classifier</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
     body {
       background-image: url('https://i.postimg.cc/1z3sPptY/arvejas.jpg');
@@ -19,9 +18,9 @@
 
   <div class="container-fluid">
     <h1>Clasificador de Mildiu Polvoso / Powdery Mildew Classifier</h1>
+
     <form method="POST" enctype="multipart/form-data">
-      
-      <label for="fileInput" class="custom-file-label">📁 Seleccionar archivo o abrir cámara</label>
+      <label for="fileInput" class="custom-file-label">📁 Seleccionar archivo o abrir cámara / Select file or open camera</label>
       <input id="fileInput" type="file" name="image" accept="image/*" required capture="environment" class="hidden-input">
 
       <div class="captura-opciones">
@@ -36,24 +35,54 @@
     </form>
 
     <div class="advertencia">
-      ⚠️ Advertencia / Warning: Los modelos fueron entrenados para clasificar el avance del mildiu polvoso en hojas del cultivo de arvejas <em>(Pisum sativum)</em> variedad Vizcaya. El uso en otros órganos o especies puede arrojar resultados erráticos. No asuma el riesgo. <br>
-      Models were trained for powdery mildew on pea leaves (var. Vizcaya). Use on other crops or plant parts may cause inaccurate results. Use at your own risk.
+      ⚠️ Advertencia / Warning: Los modelos fueron entrenados para clasificar el avance del mildiu polvoso en hojas del cultivo de arvejas <em>(Pisum sativum)</em> variedad Vizcaya. El uso en otros órganos o especies puede arrojar resultados erráticos. <br>
+      Models were trained for powdery mildew on pea leaves (var. Vizcaya). Use on other crops or plant parts may cause inaccurate results.
+    </div>
+
+    <div id="resultados">
+      {% if prediction %}
+        <h2>Resultado de la Clasificación / Classification Result</h2>
+        <p><strong>Clase predicha / Predicted class:</strong> {{ prediction }}</p>
+        <p><strong>Confianza / Confidence:</strong> {{ confidence }}%</p>
+
+        {% if top_predictions %}
+          <h3>Top 3 predicciones / Top 3 Predictions</h3>
+          <ul>
+            {% for clase, prob in top_predictions %}
+              <li>{{ clase }}: {{ prob }}%</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        {% if probs_dict %}
+          <h3>Probabilidades por clase / Probabilities per class</h3>
+          <ul>
+            {% for clase, prob in probs_dict.items() %}
+              <li>{{ clase }}: {{ prob }}%</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        <p><strong>Tamaño original de la imagen / Original image size:</strong> {{ original_size }}</p>
+        <p><strong>Tiempo de inferencia / Inference time:</strong> {{ inference_time }} s</p>
+        <p><strong>Entropía de la predicción / Prediction entropy:</strong> {{ entropy }}</p>
+      {% endif %}
+
+      {% if image_data %}
+        <h3>Imagen cargada / Uploaded image</h3>
+        <img id="imagenCargada" src="{{ image_data }}" alt="Imagen subida" style="max-width: 300px; border: 1px solid #ccc; border-radius: 10px;">
+      {% endif %}
     </div>
 
     {% if prediction %}
-      <h2>Resultado de la Clasificación / Qualifying Result </h2>
-      <p><strong>Clase predicha / Predicted class:</strong> {{ prediction }}</p>
-      <p><strong>Nivel de Confianza/ Confidence level:</strong> {{ confidence }}%</p>
-    {% endif %}
-
-    {% if image_data %}
-      <h3>Imagen cargada:</h3>
-      <img src="{{ image_data }}" alt="Imagen subida" style="max-width: 300px; border: 1px solid #ccc; border-radius: 10px;">
+      <button id="resetBtn" class="secondary-button" onclick="resetPrediction()">
+        🔁 Hacer otra lectura / Make another prediction
+      </button>
     {% endif %}
 
     <p>
-      <a href="/otro-modelo">Probar otro modelo / Try another model</a> | 
-      <a href="/descripcion-modelos">Descripción de modelos / Model description</a>
+      <a href="/otro-modelo">🔧 Probar otro modelo / Try another model</a> |
+      <a href="/descripcion-modelos">📖 Descripción de modelos / Model description</a>
     </p>
   </div>
 
@@ -74,8 +103,21 @@
           }
         }
       } catch (err) {
-        alert("No se pudo pegar la imagen. Prueba en Chrome o Edge. / Unable to paste image. Try Chrome or Edge.");
+        alert("No se pudo pegar la imagen. Usa Chrome o Edge. / Unable to paste image. Use Chrome or Edge.");
       }
+    }
+
+    function resetPrediction() {
+      const resultados = document.getElementById("resultados");
+      resultados.innerHTML = "";
+
+      const fileInput = document.getElementById("fileInput");
+      if (fileInput) fileInput.value = "";
+
+      const resetBtn = document.getElementById("resetBtn");
+      if (resetBtn) resetBtn.style.display = "none";
+
+      alert("Lectura reiniciada / Prediction cleared.");
     }
   </script>
 </body>
