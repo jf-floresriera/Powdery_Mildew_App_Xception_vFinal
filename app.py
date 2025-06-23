@@ -47,11 +47,11 @@ def index():
 if __name__ == '__main__':
     app.run(debug=True)
 
-
-@app.route('/otro-modelo')
-def otro_modelo():
-    return render_template("otro_modelo.html")
-
+########
+#@app.route('/otro-modelo')
+#def otro_modelo():
+    #return render_template("otro_modelo.html")
+######
 @app.route('/descripcion-modelos')
 def descripcion_modelos():
     return render_template("descripcion_modelos.html")
@@ -83,8 +83,8 @@ def otro_modelo():
             ]
             result = classes[predicted_class]
 
-            
             return render_template("otro_modelo.html", result=result, filename=file.filename)
+    
     return render_template("otro_modelo.html", result=None)
 
 
