@@ -83,5 +83,8 @@ def otro_modelo():
             ]
             result = classes[predicted_class]
 
+            
             return render_template("otro_modelo.html", result=result, filename=file.filename)
     return render_template("otro_modelo.html", result=None)
+
+
