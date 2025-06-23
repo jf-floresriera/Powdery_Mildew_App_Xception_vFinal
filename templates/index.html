@@ -17,63 +17,66 @@
     <img src="https://agroconciencia.agrosavia.co/media/pwvhl3sj/fac-ciencias.png">
   </div>
 
-<div class="container-fluid">
-  <h1>Clasificador de Mildiu Polvoso / Powdery Mildew Classifier</h1>
-  <form method="POST" enctype="multipart/form-data">
-    
-    <label for="fileInput" class="custom-file-label">📁 Seleccionar archivo o abrir cámara</label>
-    <input id="fileInput" type="file" name="image" accept="image/*" required capture="environment" class="hidden-input">
+  <div class="container-fluid">
+    <h1>Clasificador de Mildiu Polvoso / Powdery Mildew Classifier</h1>
+    <form method="POST" enctype="multipart/form-data">
+      
+      <label for="fileInput" class="custom-file-label">📁 Seleccionar archivo o abrir cámara</label>
+      <input id="fileInput" type="file" name="image" accept="image/*" required capture="environment" class="hidden-input">
 
-    <div class="captura-opciones">
-      <button type="button" class="secondary-button" onclick="pegarDesdePortapapeles()">
-        📋 Pegar imagen desde portapapeles / Paste image
+      <div class="captura-opciones">
+        <button type="button" class="secondary-button" onclick="pegarDesdePortapapeles()">
+          📋 Pegar imagen desde portapapeles / Paste image
+        </button>
+      </div>
+
+      <button type="submit" class="primary-button">
+        📷 Clasificar Imagen / Classify Image
       </button>
-    </div>
+    </form>
 
-    <button type="submit" class="primary-button">
-      📷 Clasificar Imagen / Classify Image
-    </button>
-  </form>
-  <div class="advertencia">
-      ⚠️ Advertencia / Warning: Los modelos fueron entrenados para clasificar el avance del mildiu polvoso en hojas del cultivo de arvejas <em>(Pisum sativum)<em> variedad Vizcaya. El uso en otros órganos o especies puede arrojar resultados erráticos. No asuma el riesgo. <br>
+    <div class="advertencia">
+      ⚠️ Advertencia / Warning: Los modelos fueron entrenados para clasificar el avance del mildiu polvoso en hojas del cultivo de arvejas <em>(Pisum sativum)</em> variedad Vizcaya. El uso en otros órganos o especies puede arrojar resultados erráticos. No asuma el riesgo. <br>
       Models were trained for powdery mildew on pea leaves (var. Vizcaya). Use on other crops or plant parts may cause inaccurate results. Use at your own risk.
     </div>
-{% if prediction %}
-  <h2>Resultado de la Clasificación</h2>
-  <p><strong>Clase predicha:</strong> {{ prediction }}</p>
-  <p><strong>Confianza:</strong> {{ confidence }}%</p>
-{% endif %}
 
-{% if image_data %}
-  <h3>Imagen cargada:</h3>
-  <img src="{{ image_data }}" alt="Imagen subida" style="max-width: 300px; border: 1px solid #ccc; border-radius: 10px;">
-{% endif %}
+    {% if prediction %}
+      <h2>Resultado de la Clasificación</h2>
+      <p><strong>Clase predicha:</strong> {{ prediction }}</p>
+      <p><strong>Confianza:</strong> {{ confidence }}%</p>
+    {% endif %}
 
-    <p><a href="/otro-modelo">Probar otro modelo / Try another model</a> | <a href="/descripcion-modelos">Descripción de modelos / Model description</a></p>
+    {% if image_data %}
+      <h3>Imagen cargada:</h3>
+      <img src="{{ image_data }}" alt="Imagen subida" style="max-width: 300px; border: 1px solid #ccc; border-radius: 10px;">
+    {% endif %}
+
+    <p>
+      <a href="/otro-modelo">Probar otro modelo / Try another model</a> | 
+      <a href="/descripcion-modelos">Descripción de modelos / Model description</a>
+    </p>
   </div>
-</div>
-    
+
   <script>
-  async function pegarDesdePortapapeles() {
-    try {
-      const items = await navigator.clipboard.read();
-      for (const item of items) {
-        if (item.types.includes('image/png') || item.types.includes('image/jpeg')) {
-          const blob = await item.getType(item.types[0]);
-          const fileInput = document.querySelector('input[type="file"]');
-          const dataTransfer = new DataTransfer();
-          const file = new File([blob], "pasted-image.jpeg", { type: blob.type });
-          dataTransfer.items.add(file);
-          fileInput.files = dataTransfer.files;
-          alert("Imagen pegada correctamente / Image pasted successfully.");
-          break;
+    async function pegarDesdePortapapeles() {
+      try {
+        const items = await navigator.clipboard.read();
+        for (const item of items) {
+          if (item.types.includes('image/png') || item.types.includes('image/jpeg')) {
+            const blob = await item.getType(item.types[0]);
+            const fileInput = document.querySelector('input[type="file"]');
+            const dataTransfer = new DataTransfer();
+            const file = new File([blob], "pasted-image.jpeg", { type: blob.type });
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+            alert("Imagen pegada correctamente / Image pasted successfully.");
+            break;
+          }
         }
+      } catch (err) {
+        alert("No se pudo pegar la imagen. Prueba en Chrome o Edge. / Unable to paste image. Try Chrome or Edge.");
       }
-    } catch (err) {
-      alert("No se pudo pegar la imagen. Prueba en Chrome o Edge. / Unable to paste image. Try Chrome or Edge.");
     }
-  }
   </script>
 </body>
 </html>
-
