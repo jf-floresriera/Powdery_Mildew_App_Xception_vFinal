@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Descripción de modelos / Model Description</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      background-image: url('https://i.postimg.cc/Dz2RLn3W/images.jpg');
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <h1>Descripción de los modelos / Model Description</h1>
+    <p>Los modelos fueron entrenados con imágenes de hojas de arveja (Pisum sativum) variedad Vizcaya. / Models were trained using images of pea leaves (var. Vizcaya).</p>
+    <p>Se usaron arquitecturas CNN modernas como MobileNet y otras. / Architectures used include MobileNet and others.</p>
+    <p>Las métricas de evaluación son: / Evaluation metrics:</p>
+    <ul>
+      <li><strong>Precisión / Accuracy:</strong> 94%</li>
+      <li><strong>Recall:</strong> 92%</li>
+      <li><strong>F1-Score:</strong> 93%</li>
+    </ul>
+    <div id="grafica"></div>
+
+    <script>
+      var data = [{
+        x: ['Hoja Sana', '1-25%', '25-50%', '50-75%', '75-100%'],
+        y: [96, 93, 91, 89, 92],
+        type: 'bar',
+        marker: { color: ['#a5d6a7', '#c5e1a5', '#ffe082', '#ffcc80', '#ef9a9a'] }
+      }];
+
+      var layout = {
+        title: 'Accuracy por clase / Accuracy per class',
+        yaxis: { title: 'Accuracy (%)' },
+        xaxis: { title: 'Clase / Class' }
+      };
+
+      Plotly.newPlot('grafica', data, layout);
+    </script>
+
+    <p><a href="/">⬅️ Volver / Back</a></p>
+  </div>
+</body>
+</html>
