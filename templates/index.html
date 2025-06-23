@@ -74,11 +74,16 @@
     <form method="POST" enctype="multipart/form-data">
       <label for="fileInput" class="custom-file-label">📁 Seleccionar archivo o abrir cámara</label>
       <input id="fileInput" type="file" name="image" accept="image/*" required capture="environment" class="hidden-input">
+
+      <button type="button" class="secondary-button" onclick="pegarDesdePortapapeles()">
+        📋 Pegar imagen desde portapapeles / Paste image
+      </button>
+
       <button type="submit" class="primary-button">📷 Clasificar Imagen / Classify Image</button>
     </form>
 
     <div class="advertencia">
-      ⚠️ Modelos entrenados para hojas de arveja (Pisum sativum) var. Vizcaya. Su uso en otras especies puede producir errores. /
+      ⚠️ Modelos entrenados para hojas de arveja (Pisum sativum) var. Vizcaya. Su uso en otras especies puede producir errores. /  
       Models trained on pea leaves (var. Vizcaya). Use on other species may result in inaccuracies.
     </div>
 
@@ -160,6 +165,27 @@
       URL.revokeObjectURL(url);
     }
 
+    async function pegarDesdePortapapeles() {
+      try {
+        const items = await navigator.clipboard.read();
+        for (const item of items) {
+          if (item.types.includes('image/png') || item.types.includes('image/jpeg')) {
+            const blob = await item.getType(item.types[0]);
+            const fileInput = document.querySelector('input[type="file"]');
+            const dataTransfer = new DataTransfer();
+            const file = new File([blob], "pasted-image.jpg", { type: blob.type });
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+            alert("✅ Imagen pegada correctamente / Image pasted successfully.");
+            break;
+          }
+        }
+      } catch (err) {
+        alert("❌ No se pudo pegar la imagen. Usa Chrome o Edge. / Could not paste image. Use Chrome or Edge.");
+      }
+    }
+
+    // Registrar Service Worker (PWA)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/static/service-worker.js')
