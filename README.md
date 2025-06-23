@@ -86,6 +86,11 @@ Your app will be live in a few minutes 🎉
 The dataset contains labeled images of leaves with powdery mildew at 5 levels of severity.
 
 Classes: clase0, clase1, clase2, clase3, clase4
+'Hoja Sana / Healthy Leaf',
+    '1 a 25% área infectada / 1 to 25% infected',
+    '25 a 50% área infectada / 25 to 50% infected',
+    '50 a 75% área infectada / 50 to 75% infected',
+    '75 a 100% área infectada / 75 to 100% infected'
 
 Augmented with data augmentation techniques (rotation, zoom, brightness).
 
