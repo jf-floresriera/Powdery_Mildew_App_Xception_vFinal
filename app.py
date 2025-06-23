@@ -1,16 +1,16 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for
 from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.image import img_to_array
+from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
-import io
+from io import BytesIO
 
 app = Flask(__name__)
 
-# Solo un modelo (ligero)
+# Cargar el modelo UNA SOLA VEZ
 model = load_model("modelo_mildiu_mobilenet.h5")
 
-# Clases
+# Clases del modelo
 class_names = [
     'Hoja Sana / Healthy Leaf',
     '1 a 25% área infectada / 1 to 25% infected',
@@ -25,25 +25,19 @@ def index():
     if request.method == 'POST':
         file = request.files['image']
         if file:
-            # Procesar imagen directamente desde memoria
-            img = Image.open(io.BytesIO(file.read())).convert('RGB')
+            # Leer imagen desde memoria sin guardarla
+            img = Image.open(BytesIO(file.read())).convert('RGB')
             img = img.resize((224, 224))
-            img_array = img_to_array(img) / 255.0
+            img_array = image.img_to_array(img) / 255.0
             img_array = np.expand_dims(img_array, axis=0)
 
-            pred = model.predict(img_array, verbose=0)
-            pred_class = np.argmax(pred)
-            prediction = class_names[pred_class]
+            # Predecir
+            prediction_index = np.argmax(model.predict(img_array))
+            prediction = class_names[prediction_index]
 
     return render_template("index.html", prediction=prediction)
 
+# Ruta adicional si tienes una descripción de modelos
 @app.route('/descripcion-modelos')
 def descripcion_modelos():
     return render_template("descripcion_modelos.html")
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
-
-
-
