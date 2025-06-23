@@ -17,15 +17,25 @@
     <img src="https://agroconciencia.agrosavia.co/media/pwvhl3sj/fac-ciencias.png">
   </div>
 
-  <div class="container-fluid">
-    <h1>Clasificador de Mildiu Polvoso / Powdery Mildew Classifier</h1>
-    <form method="POST" enctype="multipart/form-data">
-      <input type="file" name="image" accept="image/*" required capture="environment">
-      <div class="captura-opciones">
-        <button type="button" onclick="pegarDesdePortapapeles()">📋 Pegar imagen desde portapapeles / Paste image</button>
-      </div>
-      <button type="submit">📷 Clasificar Imagen / Classify Image</button>
-    </form>
+<div class="container-fluid">
+  <h1>Clasificador de Mildiu Polvoso / Powdery Mildew Classifier</h1>
+  <form method="POST" enctype="multipart/form-data">
+    
+    <label for="fileInput" class="custom-file-label">📁 Seleccionar archivo o abrir cámara</label>
+    <input id="fileInput" type="file" name="image" accept="image/*" required capture="environment" class="hidden-input">
+
+    <div class="captura-opciones">
+      <button type="button" class="secondary-button" onclick="pegarDesdePortapapeles()">
+        📋 Pegar imagen desde portapapeles / Paste image
+      </button>
+    </div>
+
+    <button type="submit" class="primary-button">
+      📷 Clasificar Imagen / Classify Image
+    </button>
+  </form>
+</div>
+
 
     {% if prediction %}
     <div class="resultado-box">
@@ -36,7 +46,7 @@
     {% endif %}
 
     <div class="advertencia">
-      ⚠️ Advertencia / Warning: Los modelos fueron entrenados para clasificar el avance del mildiu polvoso en hojas del cultivo de arvejas (Pisum sativum) variedad Vizcaya. El uso en otros órganos o especies puede arrojar resultados erráticos. No asuma el riesgo. <br>
+      ⚠️ Advertencia / Warning: Los modelos fueron entrenados para clasificar el avance del mildiu polvoso en hojas del cultivo de arvejas <em>(Pisum sativum)<em> variedad Vizcaya. El uso en otros órganos o especies puede arrojar resultados erráticos. No asuma el riesgo. <br>
       Models were trained for powdery mildew on pea leaves (var. Vizcaya). Use on other crops or plant parts may cause inaccurate results. Use at your own risk.
     </div>
 
