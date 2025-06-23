@@ -1,20 +1,17 @@
-
-from flask import Flask, render_template, request, redirect, url_for
-import tensorflow as tf
+from flask import Flask, render_template, request, url_for
 from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
+from tensorflow.keras.preprocessing.image import img_to_array
 import numpy as np
-import os
 from PIL import Image
-import uuid
+import io
 
 app = Flask(__name__)
-UPLOAD_FOLDER = 'static/uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+# Cargar modelos
+modelo_mobilenet = load_model("modelo_mildiu_mobilenet.h5")
+modelo_xception = load_model("modelos/modelo_xception.h5")
 
-model = load_model("modelo_mildiu_mobilenet.h5")
+# Clases
 class_names = [
     'Hoja Sana / Healthy Leaf',
     '1 a 25% área infectada / 1 to 25% infected',
@@ -26,67 +23,46 @@ class_names = [
 @app.route('/', methods=['GET', 'POST'])
 def index():
     prediction = None
-    image_url = None
-
     if request.method == 'POST':
         file = request.files['image']
         if file:
-            filename = f"{uuid.uuid4().hex}.jpeg"
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath)
-
-            img = image.load_img(filepath, target_size=(224, 224))
-            img_array = image.img_to_array(img)
+            # Leer imagen desde memoria
+            img = Image.open(io.BytesIO(file.read())).convert('RGB')
+            img = img.resize((224, 224))
+            img_array = img_to_array(img) / 255.0
             img_array = np.expand_dims(img_array, axis=0)
-            img_array /= 255.0
 
-            prediction_index = np.argmax(model.predict(img_array))
+            prediction_index = np.argmax(modelo_mobilenet.predict(img_array))
             prediction = class_names[prediction_index]
-            image_url = url_for('static', filename=f"uploads/{filename}")
 
-    return render_template("index.html", prediction=prediction, image_url=image_url)
+    return render_template("index.html", prediction=prediction)
 
-if __name__ == '__main__':
-    app.run(debug=True)
 
-########
-#@app.route('/otro-modelo')
-#def otro_modelo():
-    #return render_template("otro_modelo.html")
-######
+@app.route('/otro-modelo', methods=['GET', 'POST'])
+def otro_modelo():
+    result = None
+    if request.method == 'POST':
+        file = request.files['image']
+        if file:
+            img = Image.open(io.BytesIO(file.read())).convert('RGB')
+            img = img.resize((224, 224))
+            img_array = np.array(img) / 255.0
+            img_array = img_array.reshape((1, 224, 224, 3))
+
+            prediction = modelo_xception.predict(img_array)
+            predicted_class = np.argmax(prediction)
+            result = class_names[predicted_class]
+
+    return render_template("otro_modelo.html", result=result)
+
+
 @app.route('/descripcion-modelos')
 def descripcion_modelos():
     return render_template("descripcion_modelos.html")
 
 
-@app.route('/otro-modelo', methods=["GET", "POST"])
-def otro_modelo():
-    if request.method == "POST":
-        file = request.files["image"]
-        if file:
-            filepath = os.path.join("static/uploads", file.filename)
-            file.save(filepath)
+if __name__ == '__main__':
+    app.run(debug=True)
 
-            model = tf.keras.models.load_model("modelos/modelo_xception.h5")
-
-            img = Image.open(filepath).resize((224, 224))
-            img_array = np.array(img) / 255.0
-            img_array = img_array.reshape((1, 224, 224, 3))
-
-            prediction = model.predict(img_array)
-            predicted_class = np.argmax(prediction)
-
-            classes = [
-                'Hoja Sana / Healthy Leaf',
-                '1 a 25% área infectada / 1-25% infected',
-                '25 a 50% área infectada / 25-50% infected',
-                '50 a 75% área infectada / 50-75% infected',
-                '75 a 100% área infectada / 75-100% infected'
-            ]
-            result = classes[predicted_class]
-
-            return render_template("otro_modelo.html", result=result, filename=file.filename)
-    
-    return render_template("otro_modelo.html", result=None)
 
 
