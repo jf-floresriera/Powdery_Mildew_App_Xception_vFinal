@@ -4,6 +4,7 @@ from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
 from io import BytesIO
+import base64
 
 app = Flask(__name__)
 
@@ -22,22 +23,42 @@ class_names = [
 @app.route('/', methods=['GET', 'POST'])
 def index():
     prediction = None
+    confidence = None
+    image_data = None
+
     if request.method == 'POST':
         file = request.files['image']
         if file:
-            # Leer imagen desde memoria sin guardarla
+            # Leer imagen y procesarla
             img = Image.open(BytesIO(file.read())).convert('RGB')
-            img = img.resize((224, 224))
-            img_array = image.img_to_array(img) / 255.0
+            img_resized = img.resize((224, 224))
+            img_array = image.img_to_array(img_resized) / 255.0
             img_array = np.expand_dims(img_array, axis=0)
 
-            # Predecir
-            prediction_index = np.argmax(model.predict(img_array))
+            # Predicción
+            prediction_probs = model.predict(img_array)[0]
+            prediction_index = np.argmax(prediction_probs)
             prediction = class_names[prediction_index]
+            confidence = round(float(prediction_probs[prediction_index]) * 100, 2)  # % con 2 decimales
 
-    return render_template("index.html", prediction=prediction)
+            # Convertir imagen a base64 para mostrarla en HTML
+            img.thumbnail((300, 300))  # Redimensionar para hacerla liviana
+            buffered = BytesIO()
+            img.save(buffered, format="JPEG", optimize=True, quality=70)
+            img_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+            image_data = f"data:image/jpeg;base64,{img_base64}"
 
-# Ruta adicional si tienes una descripción de modelos
+    return render_template(
+        "index.html",
+        prediction=prediction,
+        confidence=confidence,
+        image_data=image_data
+    )
+
 @app.route('/descripcion-modelos')
 def descripcion_modelos():
     return render_template("descripcion_modelos.html")
+
+@app.route('/modelo-en-entrenamiento')
+def modelo_en_entrenamiento():
+    return render_template("modelo_en_entrenamiento.html")
