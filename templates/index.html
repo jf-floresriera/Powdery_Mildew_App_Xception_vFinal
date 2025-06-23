@@ -4,11 +4,31 @@
   <meta charset="UTF-8">
   <title>Clasificador de Mildiu Polvoso / Powdery Mildew Classifier</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <meta name="theme-color" content="#4CAF50">
   <style>
     body {
-      background-image: url('https://i.postimg.cc/1z3sPptY/arvejas.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: background-image 1s ease-in-out;
     }
-
+    #help-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #007BFF;
+      color: white;
+      font-size: 28px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 48px;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      z-index: 9999;
+    }
     .tooltip {
       display: inline-block;
       cursor: pointer;
@@ -16,7 +36,6 @@
       color: #007BFF;
       font-weight: bold;
     }
-
     .tooltip .tooltiptext {
       visibility: hidden;
       width: 280px;
@@ -35,15 +54,15 @@
       transition: opacity 0.4s;
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
-
-    .tooltip:hover .tooltiptext,
-    .tooltip:focus .tooltiptext {
+    .tooltip:hover .tooltiptext {
       visibility: visible;
       opacity: 1;
     }
   </style>
 </head>
 <body>
+  <audio id="successSound" src="https://assets.mixkit.co/sfx/preview/mixkit-bubble-pop-up-alert-notification-2357.mp3" preload="auto"></audio>
+
   <div class="logos-row" style="background-color: rgba(255, 255, 255, 0.7); border-radius: 10px;">
     <img src="https://agroconciencia.agrosavia.co/media/4finmqqk/unal.png">
     <img src="https://agroconciencia.agrosavia.co/media/pwvhl3sj/fac-ciencias.png">
@@ -53,100 +72,55 @@
     <h1>Clasificador de Mildiu Polvoso / Powdery Mildew Classifier</h1>
 
     <form method="POST" enctype="multipart/form-data">
-      <label for="fileInput" class="custom-file-label">📁 Seleccionar archivo o abrir cámara / Select file or open camera</label>
+      <label for="fileInput" class="custom-file-label">📁 Seleccionar archivo o abrir cámara</label>
       <input id="fileInput" type="file" name="image" accept="image/*" required capture="environment" class="hidden-input">
-
-      <div class="captura-opciones">
-        <button type="button" class="secondary-button" onclick="pegarDesdePortapapeles()">
-          📋 Pegar imagen desde portapapeles / Paste image
-        </button>
-      </div>
-
-      <button type="submit" class="primary-button">
-        📷 Clasificar Imagen / Classify Image
-      </button>
+      <button type="submit" class="primary-button">📷 Clasificar Imagen / Classify Image</button>
     </form>
 
     <div class="advertencia">
-      ⚠️ Advertencia / Warning: Los modelos fueron entrenados para clasificar el avance del mildiu polvoso en hojas del cultivo de arvejas <em>(Pisum sativum)</em> variedad Vizcaya. El uso en otros órganos o especies puede arrojar resultados erráticos. <br>
-      Models were trained for powdery mildew on pea leaves (var. Vizcaya). Use on other crops or plant parts may cause inaccurate results.
-    </div>
-
-    <div id="resultados">
-      {% if prediction %}
-        <h2>Resultado de la Clasificación / Classification Result</h2>
-        <p><strong>Clase predicha / Predicted class:</strong> {{ prediction }}</p>
-        <p><strong>Confianza / Confidence:</strong> {{ confidence }}%</p>
-
-        {% if top_predictions %}
-          <h3>📊 Top 3 predicciones / Top 3 Predictions</h3>
-          <ul>
-            {% for clase, prob in top_predictions %}
-              <li>{{ clase }}: {{ prob }}%</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-
-        {% if probs_dict %}
-          <h3>📈 Probabilidades por clase / Probabilities per class</h3>
-          <ul>
-            {% for clase, prob in probs_dict.items() %}
-              <li>{{ clase }}: {{ prob }}%</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-
-        <p>
-          <strong>📐 Tamaño original de la imagen / Original image size:</strong> 
-          {{ original_size }} 
-          <span class="tooltip">px
-            <span class="tooltiptext">
-              🔍 <strong>px = píxeles / pixels</strong><br>
-              Unidad para medir dimensiones de imágenes digitales. Representa el ancho × alto.<br>
-              — Used to check image resolution before preprocessing.
-            </span>
-          </span>
-        </p>
-
-        <p>
-          <strong>⚙️ Tiempo de inferencia / Inference time:</strong> 
-          {{ inference_time }} 
-          <span class="tooltip">s
-            <span class="tooltiptext">
-              ⏱️ <strong>s = segundos / seconds</strong><br>
-              Tiempo que tardó el modelo en hacer su predicción.<br>
-              — Useful to monitor model performance.
-            </span>
-          </span>
-        </p>
-
-        <p>
-          <strong>📉 Entropía de la predicción / Prediction entropy:</strong> 
-          {{ entropy }} 
-          <span class="tooltip">nats
-            <span class="tooltiptext">
-              📊 <strong>nats = unidad logarítmica de incertidumbre</strong><br>
-              Cuanto mayor, más dispersa e insegura fue la predicción.<br>
-              — A low entropy means the model was more confident.
-            </span>
-          </span>
-        </p>
-      {% endif %}
-
-      {% if image_data %}
-        <h3>🖼️ Imagen cargada / Uploaded image</h3>
-        <img id="imagenCargada" src="{{ image_data }}" alt="Imagen subida" style="max-width: 300px; border: 1px solid #ccc; border-radius: 10px;">
-      {% endif %}
+      ⚠️ Modelos entrenados para hojas de arveja (Pisum sativum) var. Vizcaya. Su uso en otras especies puede producir errores. /
+      Models trained on pea leaves (var. Vizcaya). Use on other species may result in inaccuracies.
     </div>
 
     {% if prediction %}
-      <button id="resetBtn" class="secondary-button" onclick="resetPrediction()">
-        🔁 Hacer otra lectura / Make another prediction
-      </button>
+      <script>document.getElementById("successSound").play();</script>
+      <h2>Resultado de la Clasificación / Classification Result</h2>
+      <p><strong>Clase predicha / Predicted class:</strong> {{ prediction }}</p>
+      <p><strong>Confianza / Confidence:</strong> {{ confidence }}%</p>
 
-      <button class="secondary-button" onclick="descargarResultado()">
-        📥 Descargar resultado / Download result
-      </button>
+      <p><strong>📊 Top 3 predicciones:</strong></p>
+      <ul>
+        {% for clase, prob in top_predictions %}
+          <li>{{ clase }}: {{ prob }}%</li>
+        {% endfor %}
+      </ul>
+
+      <p><strong>📈 Entropía:</strong> {{ entropy }}
+        <span class="tooltip">nats
+          <span class="tooltiptext">Mide la incertidumbre del modelo. Valores bajos indican alta confianza. / Measures model uncertainty.</span>
+        </span>
+      </p>
+
+      <p><strong>⏱️ Tiempo de inferencia:</strong> {{ inference_time }}
+        <span class="tooltip">s
+          <span class="tooltiptext">Tiempo que tardó el modelo en procesar la imagen. / Time taken to process the image.</span>
+        </span>
+      </p>
+
+      <p><strong>🖼️ Tamaño original:</strong> {{ original_size }}
+        <span class="tooltip">px
+          <span class="tooltiptext">Dimensiones de la imagen antes del redimensionamiento. / Image size before resizing.</span>
+        </span>
+      </p>
+
+      {% if image_data %}
+        <h3>Imagen cargada / Uploaded image</h3>
+        <img src="{{ image_data }}" alt="Imagen subida" style="max-width: 300px; border-radius: 10px; border: 1px solid #ccc;">
+      {% endif %}
+
+      <br><br>
+      <button class="secondary-button" onclick="location.reload()">🔁 Nueva lectura / New prediction</button>
+      <button class="secondary-button" onclick="descargarResultado()">📥 Descargar resultado / Download result</button>
     {% endif %}
 
     <p>
@@ -155,67 +129,43 @@
     </p>
   </div>
 
+  <div id="help-button" onclick="mostrarAyuda()" title="Ayuda / Help">❓</div>
+
   <script>
-    async function pegarDesdePortapapeles() {
-      try {
-        const items = await navigator.clipboard.read();
-        for (const item of items) {
-          if (item.types.includes('image/png') || item.types.includes('image/jpeg')) {
-            const blob = await item.getType(item.types[0]);
-            const fileInput = document.querySelector('input[type="file"]');
-            const dataTransfer = new DataTransfer();
-            const file = new File([blob], "pasted-image.jpeg", { type: blob.type });
-            dataTransfer.items.add(file);
-            fileInput.files = dataTransfer.files;
-            alert("Imagen pegada correctamente / Image pasted successfully.");
-            break;
-          }
-        }
-      } catch (err) {
-        alert("No se pudo pegar la imagen. Usa Chrome o Edge. / Unable to paste image. Use Chrome or Edge.");
-      }
+    const imagenesFondo = [
+      'https://i.postimg.cc/sgmp0XJs/DJI-0246-scaled.jpg',
+      'https://i.postimg.cc/Nf49Qn2x/DJI-0225-scaled.jpg',
+      'https://i.postimg.cc/1z3sPptY/arvejas.jpg'
+    ];
+    let fondoActual = 0;
+    function rotarFondo() {
+      document.body.style.backgroundImage = `url('${imagenesFondo[fondoActual]}')`;
+      fondoActual = (fondoActual + 1) % imagenesFondo.length;
     }
+    setInterval(rotarFondo, 8000);
+    window.onload = rotarFondo;
 
-    function resetPrediction() {
-      const resultados = document.getElementById("resultados");
-      resultados.innerHTML = "";
-
-      const fileInput = document.getElementById("fileInput");
-      if (fileInput) fileInput.value = "";
-
-      const resetBtn = document.getElementById("resetBtn");
-      if (resetBtn) resetBtn.style.display = "none";
-
-      alert("Lectura reiniciada / Prediction cleared.");
+    function mostrarAyuda() {
+      alert("📸 Sube o toma una foto de la hoja para clasificarla.\n\n📥 Puedes descargar el resultado.\n\n🧠 Recuerda: el modelo fue entrenado con hojas de arveja.\n\n📊 Verás métricas como confianza y entropía.");
     }
 
     function descargarResultado() {
-      const prediccion = "{{ prediction }}";
-      const confianza = "{{ confidence }}";
-      const tiempo = "{{ inference_time }}";
-      const entropia = "{{ entropy }}";
-      const originalSize = "{{ original_size }}";
-
-      const topPredicciones = [
-        {% for clase, prob in top_predictions %}
-          "{{ clase }}: {{ prob }}%",
-        {% endfor %}
-      ];
-
-      const fecha = new Date().toLocaleString("es-CO");
-
-      const contenido = [
-        "Fecha,Clase Predicha,Confianza (%),Tiempo de Inferencia (s),Entropía (nats),Tamaño Imagen,Top 3 Predicciones",
-        `${fecha},"${prediccion}",${confianza},${tiempo},${entropia},"${originalSize}","${topPredicciones.join(' | ')}"`
-      ].join("\n");
-
-      const blob = new Blob([contenido], { type: "text/csv;charset=utf-8;" });
+      const csv = `Fecha,Clase,Confianza (%),Entropía,Tamaño,Tiempo\n${new Date().toLocaleString()},{{ prediction }},{{ confidence }},{{ entropy }},{{ original_size }},{{ inference_time }}`;
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
-      const enlace = document.createElement("a");
-      enlace.href = url;
-      enlace.download = `resultado_prediccion_${new Date().toISOString().slice(0,10)}.csv`;
-      enlace.click();
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "resultado_prediccion.csv";
+      a.click();
       URL.revokeObjectURL(url);
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/service-worker.js')
+          .then(reg => console.log("SW registrado ✅", reg))
+          .catch(err => console.log("SW fallo ❌", err));
+      });
     }
   </script>
 </body>
