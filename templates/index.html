@@ -38,20 +38,20 @@
       ⚠️ Advertencia / Warning: Los modelos fueron entrenados para clasificar el avance del mildiu polvoso en hojas del cultivo de arvejas <em>(Pisum sativum)<em> variedad Vizcaya. El uso en otros órganos o especies puede arrojar resultados erráticos. No asuma el riesgo. <br>
       Models were trained for powdery mildew on pea leaves (var. Vizcaya). Use on other crops or plant parts may cause inaccurate results. Use at your own risk.
     </div>
+{% if prediction %}
+  <h2>Resultado de la Clasificación</h2>
+  <p><strong>Clase predicha:</strong> {{ prediction }}</p>
+  <p><strong>Confianza:</strong> {{ confidence }}%</p>
+{% endif %}
+
+{% if image_data %}
+  <h3>Imagen cargada:</h3>
+  <img src="{{ image_data }}" alt="Imagen subida" style="max-width: 300px; border: 1px solid #ccc; border-radius: 10px;">
+{% endif %}
 
     <p><a href="/otro-modelo">Probar otro modelo / Try another model</a> | <a href="/descripcion-modelos">Descripción de modelos / Model description</a></p>
   </div>
 </div>
-
-
-    {% if prediction %}
-    <div class="resultado-box">
-      <h2>Resultado / Result:</h2>
-      <p><strong>{{ prediction }}</strong></p>
-      <img src="{{ image_url }}" alt="Uploaded Image">
-    </div>
-    {% endif %}
-
     
   <script>
   async function pegarDesdePortapapeles() {
