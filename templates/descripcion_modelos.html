@@ -7,7 +7,10 @@
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
     body {
-      background-image: url('https://i.postimg.cc/sgmp0XJs/DJI-0246-scaled.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      transition: background-image 1s ease-in-out;
     }
   </style>
 </head>
@@ -16,10 +19,10 @@
     <img src="https://agroconciencia.agrosavia.co/media/4finmqqk/unal.png">
     <img src="https://agroconciencia.agrosavia.co/media/pwvhl3sj/fac-ciencias.png">
   </div>
-<body>
+
   <div class="container-fluid">
     <h1>Descripción de los modelos / Model Description</h1>
-    <p>Los modelos fueron entrenados con imágenes de hojas de arveja <em>(Pisum sativum)<em> variedad Vizcaya. / Models were trained using images of pea leaves (var. Vizcaya).</p>
+    <p>Los modelos fueron entrenados con imágenes de hojas de arveja <em>(Pisum sativum)</em> variedad Vizcaya. / Models were trained using images of pea leaves (var. Vizcaya).</p>
     <p>Se usaron arquitecturas CNN modernas como MobileNet y otras. / Architectures used include MobileNet and others.</p>
     <p>Las métricas de evaluación son: / Evaluation metrics:</p>
     <ul>
@@ -27,6 +30,7 @@
       <li><strong>Recall:</strong> 92%</li>
       <li><strong>F1-Score:</strong> 93%</li>
     </ul>
+
     <div id="grafica"></div>
 
     <script>
@@ -45,9 +49,29 @@
 
       Plotly.newPlot('grafica', data, layout);
     </script>
- <p>
+
+    <p>
       <a href="/otro-modelo">🔧 Probar otro modelo / Try another model</a> |
-    <p><a href="/">⬅️ Volver inicio / Back home</a></p>
+      <a href="/">⬅️ Volver inicio / Back home</a>
+    </p>
   </div>
+
+  <script>
+    const imagenesFondo = [
+      'https://i.postimg.cc/sgmp0XJs/DJI-0246-scaled.jpg',
+      'https://i.postimg.cc/Nf49Qn2x/DJI-0225-scaled.jpg',
+      'https://i.postimg.cc/fTwyqvqS/DSC04009-scaled.jpg'
+    ];
+    let fondoActual = 0;
+
+    function rotarFondo() {
+      document.body.style.backgroundImage = `url('${imagenesFondo[fondoActual]}')`;
+      fondoActual = (fondoActual + 1) % imagenesFondo.length;
+    }
+
+    setInterval(rotarFondo, 7000);
+    window.onload = rotarFondo;
+  </script>
 </body>
 </html>
+
