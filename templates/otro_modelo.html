@@ -1,33 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Otro Modelo / Another Model</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <style>
-    body {
-      background-image: url('https://i.postimg.cc/8zDTX8VG/metro5.jpg');
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Clasificador de Mildiu (Xception)</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <div class="logos-row" style="background-color: rgba(255, 255, 255, 0.7); border-radius: 10px;">
-    <img src="https://agroconciencia.agrosavia.co/media/4finmqqk/unal.png">
-    <img src="https://agroconciencia.agrosavia.co/media/pwvhl3sj/fac-ciencias.png">
-  </div>
+    <h1>Clasificador de Mildiu Polvoriento - Modelo Xception</h1>
+    <form method="POST" enctype="multipart/form-data" action="/otro-modelo">
+        <input type="file" name="image" accept="image/*" required>
+        <button type="submit">Clasificar</button>
+    </form>
 
-  <div class="container-fluid">
-    <h1>🔧 Probar otro modelo / Test Another Model</h1>
-    <h1>🔧 Modelo en Desarrollo / Model in Development</h1>
-    <p>Esta sección estará disponible próximamente. / This section will be available soon.</p>
-     <div class="container">
-        
-        <p>Gracias por tu interés. Este modelo aún se encuentra en fase de entrenamiento y validación.</p>
-        <p>Próximamente estará disponible en esta misma plataforma.</p>
-        <a href="{{ url_for('index') }}">⬅️ Volver al modelo principal</a>
-       <a href="/descripcion-modelos">📝Descripción de modelos / Model description</a>
-    </div>
-    <p><a href="/">⬅️ Volver / Back</a></p>
-  </div>
+    {% if image_data %}
+        <h3>Imagen cargada:</h3>
+        <img src="{{ image_data }}" alt="Imagen subida">
+    {% endif %}
+
+    {% if prediction %}
+        <h2>Resultado:</h2>
+        <p><strong>Predicción:</strong> {{ prediction }}</p>
+        <p><strong>Confianza:</strong> {{ confidence }}%</p>
+        <p><strong>Tiempo de inferencia:</strong> {{ inference_time }} segundos</p>
+        <p><strong>Entropía:</strong> {{ entropy }}</p>
+
+        <h3>Top 3 clases:</h3>
+        <ul>
+            {% for clase, prob in top_predictions %}
+                <li>{{ clase }}: {{ prob }}%</li>
+            {% endfor %}
+        </ul>
+
+        <h3>Todas las probabilidades:</h3>
+        <ul>
+            {% for clase, prob in probs_dict.items() %}
+                <li>{{ clase }}: {{ prob }}%</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <p><a href="/">Volver al modelo principal</a></p>
 </body>
 </html>
