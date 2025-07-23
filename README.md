@@ -1,4 +1,4 @@
-# 🌿 Powdery Mildew Detection App with Xception and MobileNet (vFinal)
+# 🌿 Powdery Mildew Detection App with Xception and MobileNet
 
 > 🚀 Deep learning-based image classification tool for early detection of *powdery mildew* in crops. Deployed as a Flask web application.
 
