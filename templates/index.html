@@ -58,6 +58,9 @@
       visibility: visible;
       opacity: 1;
     }
+    input[type="file"] {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -73,7 +76,7 @@
 
     <form method="POST" enctype="multipart/form-data">
       <label for="fileInput" class="custom-file-label">📁 Seleccionar archivo o abrir cámara</label>
-      <input id="fileInput" type="file" name="image" accept="image/*" required capture="environment" class="hidden-input">
+      <input id="fileInput" type="file" name="image" accept="image/*" required capture="environment">
 
       <button type="button" class="secondary-button" onclick="pegarDesdePortapapeles()">
         📋 Pegar imagen desde portapapeles / Paste image
@@ -100,23 +103,14 @@
         {% endfor %}
       </ul>
 
-      <p><strong>📈 Entropía:</strong> {{ entropy }}
-        <span class="tooltip">nats
-          <span class="tooltiptext">Mide la incertidumbre del modelo. Valores bajos indican alta confianza. / Measures model uncertainty.</span>
-        </span>
-      </p>
+      <p><strong>📈 Entropía:</strong> {{ entropy }} <span class="tooltip">nats
+        <span class="tooltiptext">Mide la incertidumbre del modelo. Valores bajos indican alta confianza. / Measures model uncertainty.</span></span></p>
 
-      <p><strong>⏱️ Tiempo de inferencia:</strong> {{ inference_time }}
-        <span class="tooltip">s
-          <span class="tooltiptext">Tiempo que tardó el modelo en procesar la imagen. / Time taken to process the image.</span>
-        </span>
-      </p>
+      <p><strong>⏱️ Tiempo de inferencia:</strong> {{ inference_time }} <span class="tooltip">s
+        <span class="tooltiptext">Tiempo que tardó el modelo en procesar la imagen. / Time taken to process the image.</span></span></p>
 
-      <p><strong>🖼️ Tamaño original:</strong> {{ original_size }}
-        <span class="tooltip">px
-          <span class="tooltiptext">Dimensiones de la imagen antes del redimensionamiento. / Image size before resizing.</span>
-        </span>
-      </p>
+      <p><strong>🖼️ Tamaño original:</strong> {{ original_size }} <span class="tooltip">px
+        <span class="tooltiptext">Dimensiones de la imagen antes del redimensionamiento. / Image size before resizing.</span></span></p>
 
       {% if image_data %}
         <h3>Imagen cargada / Uploaded image</h3>
@@ -185,7 +179,6 @@
       }
     }
 
-    // Registrar Service Worker (PWA)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/static/service-worker.js')
