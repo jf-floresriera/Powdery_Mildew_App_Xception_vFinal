@@ -95,8 +95,34 @@
       <h2>Resultado de la Clasificación / Classification Result</h2>
       <p><strong>Clase predicha / Predicted class:</strong> {{ prediction }}</p>
       <p><strong>Confianza / Confidence:</strong> {{ confidence }}%</p>
+
+      <p><strong>📊 Top 3 predicciones:</strong></p>
+      <ul>
+        {% for clase, prob in top_predictions %}
+          <li>{{ clase }}: {{ prob }}%</li>
+        {% endfor %}
+      </ul>
+
+      <p><strong>📈 Entropía:</strong> {{ entropy }} <span class="tooltip">nats
+        <span class="tooltiptext">Mide la incertidumbre del modelo. Valores bajos indican alta confianza. / Measures model uncertainty.</span></span></p>
+
+      <p><strong>⏱️ Tiempo de inferencia:</strong> {{ inference_time }} <span class="tooltip">s
+        <span class="tooltiptext">Tiempo que tardó el modelo en procesar la imagen. / Time taken to process the image.</span></span></p>
+
+      <p><strong>🖼️ Tamaño original:</strong> {{ original_size }} <span class="tooltip">px
+        <span class="tooltiptext">Dimensiones de la imagen antes del redimensionamiento. / Image size before resizing.</span></span></p>
+
+      {% if image_data %}
+        <h3>Imagen cargada / Uploaded image</h3>
+        <img src="{{ image_data }}" alt="Imagen subida" style="max-width: 300px; border-radius: 10px; border: 1px solid #ccc;">
+      {% endif %}
+
+      <br><br>
+      <button class="secondary-button" onclick="location.reload()">🔁 Nueva lectura / New prediction</button>
+      <button class="secondary-button" onclick="descargarResultado()">📥 Descargar resultado / Download result</button>
+    {% endif %}
 <div class="resultado-recomendacion" style="background-color: #fff3cd; padding: 20px; border-radius: 10px; border: 1px solid #ffeeba; margin-top: 30px;">
-  <h3>⚠️ Recomendación final</h3>
+  <h3>⚠️ Posibles desiciones</h3>
   <p>Estas estrategias deben verse como una guía técnica para apoyar la toma de decisiones informadas. Sin embargo, cada sistema de producción es único y depende de muchas condiciones. Por ello, es indispensable que todas las prácticas aquí descritas sean discutidas y validadas por un agrónomo o fitopatólogo con conocimiento local.</p>
 
   <h4>🌱 Nivel 0 - Hoja sana (sin síntomas visibles)</h4>
@@ -147,32 +173,6 @@
     <li>Marschner, P. (2012). <em>Marschner’s Mineral Nutrition of Higher Plants</em> (3rd ed.). Academic Press.</li>
   </ul>
 </div>
-      <p><strong>📊 Top 3 predicciones:</strong></p>
-      <ul>
-        {% for clase, prob in top_predictions %}
-          <li>{{ clase }}: {{ prob }}%</li>
-        {% endfor %}
-      </ul>
-
-      <p><strong>📈 Entropía:</strong> {{ entropy }} <span class="tooltip">nats
-        <span class="tooltiptext">Mide la incertidumbre del modelo. Valores bajos indican alta confianza. / Measures model uncertainty.</span></span></p>
-
-      <p><strong>⏱️ Tiempo de inferencia:</strong> {{ inference_time }} <span class="tooltip">s
-        <span class="tooltiptext">Tiempo que tardó el modelo en procesar la imagen. / Time taken to process the image.</span></span></p>
-
-      <p><strong>🖼️ Tamaño original:</strong> {{ original_size }} <span class="tooltip">px
-        <span class="tooltiptext">Dimensiones de la imagen antes del redimensionamiento. / Image size before resizing.</span></span></p>
-
-      {% if image_data %}
-        <h3>Imagen cargada / Uploaded image</h3>
-        <img src="{{ image_data }}" alt="Imagen subida" style="max-width: 300px; border-radius: 10px; border: 1px solid #ccc;">
-      {% endif %}
-
-      <br><br>
-      <button class="secondary-button" onclick="location.reload()">🔁 Nueva lectura / New prediction</button>
-      <button class="secondary-button" onclick="descargarResultado()">📥 Descargar resultado / Download result</button>
-    {% endif %}
-
     <p>
       <a href="/otro-modelo">🔧 Probar otro modelo / Try another model</a> |
       <a href="/descripcion-modelos">📖 Descripción de modelos / Model description</a>
