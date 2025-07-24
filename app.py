@@ -9,8 +9,9 @@ import time
 
 app = Flask(__name__)
 
-# Cargar el modelo
-model = load_model("modelo_mildiu_mobilenet.h5")
+# Cargar los modelos
+model_mobilenet = load_model("modelo_mildiu_mobilenet.h5")
+model_xception = load_model("modelo_xception.h5")
 
 # Nombres de clases
 class_names = [
@@ -21,8 +22,7 @@ class_names = [
     '75 a 100% área infectada / 75 to 100% infected'
 ]
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
+def procesar_imagen(model, file):
     prediction = None
     confidence = None
     image_data = None
@@ -32,62 +32,68 @@ def index():
     original_size = None
     entropy = None
 
+    if file:
+        img = Image.open(BytesIO(file.read())).convert('RGB')
+        original_size = img.size
+
+        img_resized = img.resize((224, 224))
+        img_array = image.img_to_array(img_resized) / 255.0
+        img_array = np.expand_dims(img_array, axis=0)
+
+        start = time.time()
+        prediction_probs = model.predict(img_array)[0]
+        inference_time = round(time.time() - start, 4)
+
+        prediction_index = np.argmax(prediction_probs)
+        prediction = class_names[prediction_index]
+        confidence = round(float(prediction_probs[prediction_index]) * 100, 2)
+
+        top_indices = prediction_probs.argsort()[-3:][::-1]
+        top_predictions = [(class_names[i], round(float(prediction_probs[i]) * 100, 2)) for i in top_indices]
+
+        probs_dict = {
+            class_names[i]: round(float(prediction_probs[i]) * 100, 2)
+            for i in range(len(class_names))
+        }
+
+        entropy = round(-np.sum(prediction_probs * np.log(prediction_probs + 1e-10)), 4)
+
+        img.thumbnail((300, 300))
+        buffered = BytesIO()
+        img.save(buffered, format="JPEG", optimize=True, quality=70)
+        img_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+        image_data = f"data:image/jpeg;base64,{img_base64}"
+
+    return {
+        'prediction': prediction,
+        'confidence': confidence,
+        'image_data': image_data,
+        'probs_dict': probs_dict,
+        'top_predictions': top_predictions,
+        'inference_time': inference_time,
+        'original_size': original_size,
+        'entropy': entropy
+    }
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    context = {}
     if request.method == 'POST':
         file = request.files['image']
-        if file:
-            img = Image.open(BytesIO(file.read())).convert('RGB')
-            original_size = img.size
+        context = procesar_imagen(model_mobilenet, file)
+    return render_template("index.html", **context)
 
-            img_resized = img.resize((224, 224))
-            img_array = image.img_to_array(img_resized) / 255.0
-            img_array = np.expand_dims(img_array, axis=0)
-
-            # Tiempo de inferencia
-            start = time.time()
-            prediction_probs = model.predict(img_array)[0]
-            inference_time = round(time.time() - start, 4)
-
-            # Resultados
-            prediction_index = np.argmax(prediction_probs)
-            prediction = class_names[prediction_index]
-            confidence = round(float(prediction_probs[prediction_index]) * 100, 2)
-
-            # Top 3
-            top_indices = prediction_probs.argsort()[-3:][::-1]
-            top_predictions = [(class_names[i], round(float(prediction_probs[i]) * 100, 2)) for i in top_indices]
-
-            # Todas las probabilidades
-            probs_dict = {
-                class_names[i]: round(float(prediction_probs[i]) * 100, 2)
-                for i in range(len(class_names))
-            }
-
-            # Entropía de la predicción
-            entropy = round(-np.sum(prediction_probs * np.log(prediction_probs + 1e-10)), 4)
-
-            # Convertir imagen cargada a base64 (reducida para ahorrar datos)
-            img.thumbnail((300, 300))
-            buffered = BytesIO()
-            img.save(buffered, format="JPEG", optimize=True, quality=70)
-            img_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
-            image_data = f"data:image/jpeg;base64,{img_base64}"
-
-    return render_template(
-        "index.html",
-        prediction=prediction,
-        confidence=confidence,
-        image_data=image_data,
-        probs_dict=probs_dict,
-        top_predictions=top_predictions,
-        inference_time=inference_time,
-        original_size=original_size,
-        entropy=entropy
-    )
+@app.route('/otro-modelo', methods=['GET', 'POST'])
+def otro_modelo():
+    context = {}
+    if request.method == 'POST':
+        file = request.files['image']
+        context = procesar_imagen(model_xception, file)
+    return render_template("otro_modelo.html", **context)
 
 @app.route('/descripcion-modelos')
 def descripcion_modelos():
     return render_template("descripcion_modelos.html")
 
-@app.route('/otro-modelo')
-def otro_modelo():
-    return render_template("otro_modelo.html")
+if __name__ == '__main__':
+    app.run(debug=False, host='0.0.0.0', port=5000)
