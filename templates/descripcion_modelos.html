@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Descripción de modelos / Model Description</title>
@@ -12,6 +12,24 @@
       background-position: center;
       transition: background-image 1s ease-in-out;
     }
+    .confusion-img {
+      max-width: 100%;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin: 10px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -22,33 +40,89 @@
 
   <div class="container-fluid">
     <h1>Descripción de los modelos / Model Description</h1>
-    <p>Los modelos fueron entrenados con imágenes de hojas de arveja <em>(Pisum sativum)</em> variedad Vizcaya. / Models were trained using images of pea leaves (var. Vizcaya).</p>
-    <p>Se usaron arquitecturas CNN modernas como MobileNet y otras. / Architectures used include MobileNet and others.</p>
-    <p>Las métricas de evaluación son: / Evaluation metrics:</p>
-    <ul>
-      <li><strong>Precisión / Accuracy:</strong> 94%</li>
-      <li><strong>Recall:</strong> 92%</li>
-      <li><strong>F1-Score:</strong> 93%</li>
-    </ul>
+    <p>Los modelos fueron entrenados con imágenes de hojas de arveja <em>(Pisum sativum)</em> variedad Vizcaya. / Models were trained using pea leaves (var. Vizcaya).</p>
 
+    <h2>📱 MobileNetV2</h2>
+    <p>MobileNetV2 es una arquitectura de redes neuronales convolucionales liviana desarrollada para dispositivos móviles y de baja capacidad computacional (Sandler et al., 2018). Utiliza bloques residuales invertidos y convoluciones separables en profundidad, lo que permite reducir significativamente los parámetros sin sacrificar mucho el rendimiento. En este experimento obtuvo un <strong>accuracy general de 0.68</strong> y un <strong>macro F1-score de 0.65</strong>, destacándose en la clasificación de clases extremas como hojas completamente sanas o completamente infectadas. Su rapidez y eficiencia la hacen ideal para aplicaciones móviles, aunque puede ser menos precisa cuando las clases son visualmente similares.</p>
+    <img src="https://i.postimg.cc/Y0FWNN7R/Mobile-Net-V2.png" alt="Matriz de confusión MobileNet" class="confusion-img">
+    <table>
+      <thead>
+        <tr><th>Clase</th><th>Precisión</th><th>Recall</th><th>F1-score</th><th>Soporte</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>clase0</td><td>1.00</td><td>1.00</td><td>1.00</td><td>5</td></tr>
+        <tr><td>clase1</td><td>0.50</td><td>0.80</td><td>0.62</td><td>5</td></tr>
+        <tr><td>clase2</td><td>0.50</td><td>0.20</td><td>0.29</td><td>5</td></tr>
+        <tr><td>clase3</td><td>1.00</td><td>0.40</td><td>0.57</td><td>5</td></tr>
+        <tr><td>clase4</td><td>0.62</td><td>1.00</td><td>0.77</td><td>5</td></tr>
+      </tbody>
+    </table>
+
+    <h2>🧠 Xception</h2>
+    <p>Xception es una arquitectura profunda propuesta por Chollet (2017), basada enteramente en convoluciones separables en profundidad con bloques residuales, lo que le permite aprender representaciones más abstractas. Aunque su capacidad de modelado es mayor, también puede ser más sensible al sobreajuste si no se cuenta con un conjunto de datos amplio. En este estudio alcanzó un <strong>accuracy de 0.52</strong> y un <strong>macro F1-score de 0.49</strong>, con alta precisión en clases específicas como clase2 y clase4, pero con desempeño bajo en clases intermedias.</p>
+    <img src="https://i.postimg.cc/4xQpF19F/exeption.png" alt="Matriz de confusión Xception" class="confusion-img">
+    <table>
+      <thead>
+        <tr><th>Clase</th><th>Precisión</th><th>Recall</th><th>F1-score</th><th>Soporte</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>clase0</td><td>0.36</td><td>1.00</td><td>0.53</td><td>5</td></tr>
+        <tr><td>clase1</td><td>0.50</td><td>0.20</td><td>0.29</td><td>5</td></tr>
+        <tr><td>clase2</td><td>1.00</td><td>0.40</td><td>0.57</td><td>5</td></tr>
+        <tr><td>clase3</td><td>0.50</td><td>0.20</td><td>0.29</td><td>5</td></tr>
+        <tr><td>clase4</td><td>0.80</td><td>0.80</td><td>0.80</td><td>5</td></tr>
+      </tbody>
+    </table>
+
+    <h2>📊 Comparación de F1-score por clase</h2>
     <div id="grafica"></div>
-
     <script>
-      var data = [{
-        x: ['Hoja Sana', '1-25%', '25-50%', '50-75%', '75-100%'],
-        y: [96, 93, 91, 89, 92],
-        type: 'bar',
-        marker: { color: ['#a5d6a7', '#c5e1a5', '#ffe082', '#ffcc80', '#ef9a9a'] }
-      }];
-
+      var data = [
+        {
+          x: ['clase0', 'clase1', 'clase2', 'clase3', 'clase4'],
+          y: [1.00, 0.62, 0.29, 0.57, 0.77],
+          name: 'MobileNetV2',
+          type: 'bar'
+        },
+        {
+          x: ['clase0', 'clase1', 'clase2', 'clase3', 'clase4'],
+          y: [0.53, 0.29, 0.57, 0.29, 0.80],
+          name: 'Xception',
+          type: 'bar'
+        }
+      ];
       var layout = {
-        title: 'Accuracy por clase / Accuracy per class',
-        yaxis: { title: 'Accuracy (%)' },
-        xaxis: { title: 'Clase / Class' }
+        title: 'F1-score por clase / F1-score per class',
+        barmode: 'group',
+        xaxis: { title: 'Clase / Class' },
+        yaxis: { title: 'F1-score' }
       };
-
       Plotly.newPlot('grafica', data, layout);
     </script>
+
+    <h2>📋 Comparación resumen entre modelos</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Métrica</th>
+          <th>MobileNetV2</th>
+          <th>Xception</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Accuracy</td><td><strong>0.68</strong></td><td>0.52</td></tr>
+        <tr><td>F1-score macro</td><td>0.65</td><td><strong>0.49</strong></td></tr>
+        <tr><td>Mejores clases</td><td>0 (sana), 4 (severa)</td><td>2 (intermedia), 4 (severa)</td></tr>
+        <tr><td>Inferencia</td><td>Rápida y eficiente</td><td>Ligeramente más costosa</td></tr>
+        <tr><td>Requisitos</td><td>Bajo consumo de recursos</td><td>Más demandante computacionalmente</td></tr>
+      </tbody>
+    </table>
+
+    <h3>📚 Referencias</h3>
+    <ul>
+      <li>Sandler, M., Howard, A., Zhu, M., Zhmoginov, A., & Chen, L. C. (2018). <em>MobileNetV2: Inverted Residuals and Linear Bottlenecks</em>. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 4510–4520. https://doi.org/10.1109/CVPR.2018.00474</li>
+      <li>Chollet, F. (2017). <em>Xception: Deep Learning with Depthwise Separable Convolutions</em>. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 1251–1258. https://doi.org/10.1109/CVPR.2017.195</li>
+    </ul>
 
     <p>
       <a href="/otro-modelo">🔧 Probar otro modelo / Try another model</a> |
@@ -63,15 +137,12 @@
       'https://i.postimg.cc/fTwyqvqS/DSC04009-scaled.jpg'
     ];
     let fondoActual = 0;
-
     function rotarFondo() {
       document.body.style.backgroundImage = `url('${imagenesFondo[fondoActual]}')`;
       fondoActual = (fondoActual + 1) % imagenesFondo.length;
     }
-
     setInterval(rotarFondo, 7000);
     window.onload = rotarFondo;
   </script>
 </body>
 </html>
-
