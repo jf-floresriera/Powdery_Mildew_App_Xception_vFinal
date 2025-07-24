@@ -121,58 +121,61 @@
       <button class="secondary-button" onclick="location.reload()">🔁 Nueva lectura / New prediction</button>
       <button class="secondary-button" onclick="descargarResultado()">📥 Descargar resultado / Download result</button>
     {% endif %}
-<div class="resultado-recomendacion" style="background-color: #fff3cd; padding: 20px; border-radius: 10px; border: 1px solid #ffeeba; margin-top: 30px;">
-  <h3>⚠️ Posibles desiciones</h3>
-  <p>Estas estrategias deben verse como una guía técnica para apoyar la toma de decisiones informadas. Sin embargo, cada sistema de producción es único y depende de muchas condiciones. Por ello, es indispensable que todas las prácticas aquí descritas sean discutidas y validadas por un agrónomo o fitopatólogo con conocimiento local.</p>
+<details style="margin-top: 30px; background-color: #fff3cd; padding: 20px; border-radius: 10px; border: 1px solid #ffeeba;">
+  <summary style="font-weight: bold; font-size: 18px; cursor: pointer;">⚠️ Mostrar/Ocultar posibles decisiones</summary>
+  <div style="margin-top: 15px;">
+    <h3>⚠️ Posibles desiciones</h3>
+    <p>Estas estrategias deben verse como una guía técnica para apoyar la toma de decisiones informadas. Sin embargo, cada sistema de producción es único y depende de muchas condiciones. Por ello, es indispensable que todas las prácticas aquí descritas sean discutidas y validadas por un agrónomo o fitopatólogo con conocimiento local.</p>
 
-  <h4>🌱 Nivel 0 - Hoja sana (sin síntomas visibles)</h4>
-  <ul>
-    <li><strong>Prácticas culturales preventivas:</strong> Semillas certificadas, rotación con gramíneas (maíz, sorgo), manejo de residuos.</li>
-    <li><strong>Densidad de siembra adecuada:</strong> Evita microclimas húmedos. Mejora la ventilación (Agrios, 2005).</li>
-    <li><strong>Monitoreo sistemático:</strong> Inspecciones semanales, idealmente en la mañana.</li>
-  </ul>
+    <h4>🌱 Nivel 0 - Hoja sana (sin síntomas visibles)</h4>
+    <ul>
+      <li><strong>Prácticas culturales preventivas:</strong> Semillas certificadas, rotación con gramíneas (maíz, sorgo), manejo de residuos.</li>
+      <li><strong>Densidad de siembra adecuada:</strong> Evita microclimas húmedos. Mejora la ventilación (Agrios, 2005).</li>
+      <li><strong>Monitoreo sistemático:</strong> Inspecciones semanales, idealmente en la mañana.</li>
+    </ul>
 
-  <h4>🍃 Nivel 1 - 1 a 25% del área foliar afectada</h4>
-  <ul>
-    <li><strong>Biofungicidas:</strong> Bacillus subtilis al 1% (10 ml/L), cada 7–10 días.</li>
-    <li><strong>Aplicación:</strong> Con atomizadores, mojando haz y envés.</li>
-    <li><strong>Fertilización:</strong> Balanceada, evitar exceso de nitrógeno (Marschner, 2012).</li>
-    <li><strong>Manejo mecánico:</strong> Remover hojas afectadas, desechar correctamente.</li>
-    <li><strong>Costo:</strong> $150,000 – $250,000 COP/ha</li>
-  </ul>
+    <h4>🍃 Nivel 1 - 1 a 25% del área foliar afectada</h4>
+    <ul>
+      <li><strong>Biofungicidas:</strong> Bacillus subtilis al 1% (10 ml/L), cada 7–10 días.</li>
+      <li><strong>Aplicación:</strong> Con atomizadores, mojando haz y envés.</li>
+      <li><strong>Fertilización:</strong> Balanceada, evitar exceso de nitrógeno (Marschner, 2012).</li>
+      <li><strong>Manejo mecánico:</strong> Remover hojas afectadas, desechar correctamente.</li>
+      <li><strong>Costo:</strong> $150,000 – $250,000 COP/ha</li>
+    </ul>
 
-  <h4>🍂 Nivel 2 - 25 a 50% del área foliar afectada</h4>
-  <ul>
-    <li><strong>Fungicidas protectantes:</strong> Mancozeb (2 g/L), cobre (2.5 g/L), azoxistrobina (200 mL/ha).</li>
-    <li><strong>Frecuencia:</strong> Cada 7 días con humedad ≥80% y 15–25 °C.</li>
-    <li><strong>Rotación:</strong> Alternar ingredientes activos.</li>
-    <li><strong>Seguimiento digital:</strong> Uso de imágenes RGB.</li>
-    <li><strong>Costo:</strong> $180,000 – $300,000 COP/ha</li>
-  </ul>
+    <h4>🍂 Nivel 2 - 25 a 50% del área foliar afectada</h4>
+    <ul>
+      <li><strong>Fungicidas protectantes:</strong> Mancozeb (2 g/L), cobre (2.5 g/L), azoxistrobina (200 mL/ha).</li>
+      <li><strong>Frecuencia:</strong> Cada 7 días con humedad ≥80% y 15–25 °C.</li>
+      <li><strong>Rotación:</strong> Alternar ingredientes activos.</li>
+      <li><strong>Seguimiento digital:</strong> Uso de imágenes RGB.</li>
+      <li><strong>Costo:</strong> $180,000 – $300,000 COP/ha</li>
+    </ul>
 
-  <h4>🍁 Nivel 3 - 50 a 75% del área foliar afectada</h4>
-  <ul>
-    <li><strong>Fungicidas sistémicos:</strong> Metalaxil (1.5 mL/L), fosetil-Al (3 g/L), tebuconazol.</li>
-    <li><strong>Aplicación:</strong> Equipos motorizados, presión regulada.</li>
-    <li><strong>Medidas de contención:</strong> Aislamiento de lotes, reducción parcial.</li>
-    <li><strong>Costo:</strong> $250,000 – $400,000 COP/ha</li>
-  </ul>
+    <h4>🍁 Nivel 3 - 50 a 75% del área foliar afectada</h4>
+    <ul>
+      <li><strong>Fungicidas sistémicos:</strong> Metalaxil (1.5 mL/L), fosetil-Al (3 g/L), tebuconazol.</li>
+      <li><strong>Aplicación:</strong> Equipos motorizados, presión regulada.</li>
+      <li><strong>Medidas de contención:</strong> Aislamiento de lotes, reducción parcial.</li>
+      <li><strong>Costo:</strong> $250,000 – $400,000 COP/ha</li>
+    </ul>
 
-  <h4>🔥 Nivel 4 - 75 a 100% del área foliar afectada</h4>
-  <ul>
-    <li><strong>Supresión total:</strong> Retirar completamente el cultivo.</li>
-    <li><strong>Desinfección:</strong> Hipoclorito 1%, sales cuaternarias.</li>
-    <li><strong>Rotación:</strong> Evitar leguminosas por 2 ciclos. Usar gramíneas.</li>
-  </ul>
+    <h4>🔥 Nivel 4 - 75 a 100% del área foliar afectada</h4>
+    <ul>
+      <li><strong>Supresión total:</strong> Retirar completamente el cultivo.</li>
+      <li><strong>Desinfección:</strong> Hipoclorito 1%, sales cuaternarias.</li>
+      <li><strong>Rotación:</strong> Evitar leguminosas por 2 ciclos. Usar gramíneas.</li>
+    </ul>
 
-  <h4>📚 Referencias</h4>
-  <ul>
-    <li>Agrios, G. N. (2005). <em>Plant Pathology</em> (5th ed.). Elsevier Academic Press.</li>
-    <li>Campbell, C. L., & Madden, L. V. (1990). <em>Introduction to Plant Disease Epidemiology</em>. Wiley-Interscience.</li>
-    <li>FRAC. (2022). <a href="https://www.frac.info" target="_blank">FRAC Code List 2022</a>.</li>
-    <li>Marschner, P. (2012). <em>Marschner’s Mineral Nutrition of Higher Plants</em> (3rd ed.). Academic Press.</li>
-  </ul>
-</div>
+    <h4>📚 Referencias</h4>
+    <ul>
+      <li>Agrios, G. N. (2005). <em>Plant Pathology</em> (5th ed.). Elsevier Academic Press.</li>
+      <li>Campbell, C. L., & Madden, L. V. (1990). <em>Introduction to Plant Disease Epidemiology</em>. Wiley-Interscience.</li>
+      <li>FRAC. (2022). <a href="https://www.frac.info" target="_blank">FRAC Code List 2022</a>.</li>
+      <li>Marschner, P. (2012). <em>Marschner’s Mineral Nutrition of Higher Plants</em> (3rd ed.). Academic Press.</li>
+    </ul>
+  </div>
+</details>
     <p>
       <a href="/">📱 Volver a MobileNet / Return to MobileNet</a> |
       <a href="/descripcion-modelos">📖 Descripción de modelos / Model description</a>
