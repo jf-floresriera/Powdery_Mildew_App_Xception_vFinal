@@ -1,44 +1,192 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Clasificador de Mildiu (Xception)</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta charset="UTF-8">
+  <title>Clasificador Xception / Xception Classifier</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <meta name="theme-color" content="#4CAF50">
+  <style>
+    body {
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: background-image 1s ease-in-out;
+    }
+    #help-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #007BFF;
+      color: white;
+      font-size: 28px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 48px;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      z-index: 9999;
+    }
+    .tooltip {
+      display: inline-block;
+      cursor: pointer;
+      position: relative;
+      color: #007BFF;
+      font-weight: bold;
+    }
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 280px;
+      background-color: #ffffff;
+      color: #000;
+      text-align: left;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      position: absolute;
+      z-index: 1;
+      bottom: 130%;
+      left: 50%;
+      margin-left: -140px;
+      opacity: 0;
+      transition: opacity 0.4s;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+    input[type="file"] {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-    <h1>Clasificador de Mildiu Polvoriento - Modelo Xception</h1>
-    <form method="POST" enctype="multipart/form-data" action="/otro-modelo">
-        <input type="file" name="image" accept="image/*" required>
-        <button type="submit">Clasificar</button>
+  <audio id="successSound" src="https://assets.mixkit.co/sfx/preview/mixkit-bubble-pop-up-alert-notification-2357.mp3" preload="auto"></audio>
+
+  <div class="logos-row" style="background-color: rgba(255, 255, 255, 0.7); border-radius: 10px;">
+    <img src="https://agroconciencia.agrosavia.co/media/4finmqqk/unal.png">
+    <img src="https://agroconciencia.agrosavia.co/media/pwvhl3sj/fac-ciencias.png">
+  </div>
+
+  <div class="container-fluid">
+    <h1>Clasificador Xception / Xception Classifier</h1>
+
+    <form method="POST" enctype="multipart/form-data">
+      <label for="fileInput" class="custom-file-label">📁 Seleccionar archivo o abrir cámara</label>
+      <input id="fileInput" type="file" name="image" accept="image/*" required capture="environment">
+
+      <button type="button" class="secondary-button" onclick="pegarDesdePortapapeles()">
+        📋 Pegar imagen desde portapapeles / Paste image
+      </button>
+
+      <button type="submit" class="primary-button">📷 Clasificar Imagen / Classify Image</button>
     </form>
 
-    {% if image_data %}
-        <h3>Imagen cargada:</h3>
-        <img src="{{ image_data }}" alt="Imagen subida">
-    {% endif %}
+    <div class="advertencia">
+      🔬 Este clasificador usa la arquitectura Xception, ideal para escenarios donde se necesita alta precisión. Entrenado con hojas de arveja (Pisum sativum), puede fallar en otras especies. / 
+      This classifier uses Xception, suitable for high-accuracy tasks. Trained on pea leaves, use on other species may result in inaccuracies.
+    </div>
 
     {% if prediction %}
-        <h2>Resultado:</h2>
-        <p><strong>Predicción:</strong> {{ prediction }}</p>
-        <p><strong>Confianza:</strong> {{ confidence }}%</p>
-        <p><strong>Tiempo de inferencia:</strong> {{ inference_time }} segundos</p>
-        <p><strong>Entropía:</strong> {{ entropy }}</p>
+      <script>document.getElementById("successSound").play();</script>
+      <h2>Resultado de la Clasificación / Classification Result</h2>
+      <p><strong>Clase predicha / Predicted class:</strong> {{ prediction }}</p>
+      <p><strong>Confianza / Confidence:</strong> {{ confidence }}%</p>
 
-        <h3>Top 3 clases:</h3>
-        <ul>
-            {% for clase, prob in top_predictions %}
-                <li>{{ clase }}: {{ prob }}%</li>
-            {% endfor %}
-        </ul>
+      <p><strong>📊 Top 3 predicciones:</strong></p>
+      <ul>
+        {% for clase, prob in top_predictions %}
+          <li>{{ clase }}: {{ prob }}%</li>
+        {% endfor %}
+      </ul>
 
-        <h3>Todas las probabilidades:</h3>
-        <ul>
-            {% for clase, prob in probs_dict.items() %}
-                <li>{{ clase }}: {{ prob }}%</li>
-            {% endfor %}
-        </ul>
+      <p><strong>📈 Entropía:</strong> {{ entropy }} <span class="tooltip">nats
+        <span class="tooltiptext">Mide la incertidumbre del modelo. Valores bajos indican alta confianza. / Measures model uncertainty.</span></span></p>
+
+      <p><strong>⏱️ Tiempo de inferencia:</strong> {{ inference_time }} <span class="tooltip">s
+        <span class="tooltiptext">Tiempo que tardó el modelo en procesar la imagen. / Time taken to process the image.</span></span></p>
+
+      <p><strong>🖼️ Tamaño original:</strong> {{ original_size }} <span class="tooltip">px
+        <span class="tooltiptext">Dimensiones de la imagen antes del redimensionamiento. / Image size before resizing.</span></span></p>
+
+      {% if image_data %}
+        <h3>Imagen cargada / Uploaded image</h3>
+        <img src="{{ image_data }}" alt="Imagen subida" style="max-width: 300px; border-radius: 10px; border: 1px solid #ccc;">
+      {% endif %}
+
+      <br><br>
+      <button class="secondary-button" onclick="location.reload()">🔁 Nueva lectura / New prediction</button>
+      <button class="secondary-button" onclick="descargarResultado()">📥 Descargar resultado / Download result</button>
     {% endif %}
 
-    <p><a href="/">Volver al modelo principal</a></p>
+    <p>
+      <a href="/">📱 Volver a MobileNet / Return to MobileNet</a> |
+      <a href="/descripcion-modelos">📖 Descripción de modelos / Model description</a>
+    </p>
+  </div>
+
+  <div id="help-button" onclick="mostrarAyuda()" title="Ayuda / Help">❓</div>
+
+  <script>
+    const imagenesFondo = [
+      'https://i.postimg.cc/sgmp0XJs/DJI-0246-scaled.jpg',
+      'https://i.postimg.cc/Nf49Qn2x/DJI-0225-scaled.jpg',
+      'https://i.postimg.cc/1z3sPptY/arvejas.jpg'
+    ];
+    let fondoActual = 0;
+    function rotarFondo() {
+      document.body.style.backgroundImage = `url('${imagenesFondo[fondoActual]}')`;
+      fondoActual = (fondoActual + 1) % imagenesFondo.length;
+    }
+    setInterval(rotarFondo, 8000);
+    window.onload = rotarFondo;
+
+    function mostrarAyuda() {
+      alert("📸 Sube o toma una foto de la hoja para clasificarla.\n\n📥 Puedes descargar el resultado.\n\n🧠 Recuerda: el modelo fue entrenado con hojas de arveja.\n\n📊 Verás métricas como confianza y entropía.");
+    }
+
+    function descargarResultado() {
+      const csv = `Fecha,Clase,Confianza (%),Entropía,Tamaño,Tiempo\n${new Date().toLocaleString()},{{ prediction }},{{ confidence }},{{ entropy }},{{ original_size }},{{ inference_time }}`;
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "resultado_prediccion.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function pegarDesdePortapapeles() {
+      try {
+        const items = await navigator.clipboard.read();
+        for (const item of items) {
+          if (item.types.includes('image/png') || item.types.includes('image/jpeg')) {
+            const blob = await item.getType(item.types[0]);
+            const fileInput = document.querySelector('input[type="file"]');
+            const dataTransfer = new DataTransfer();
+            const file = new File([blob], "pasted-image.jpg", { type: blob.type });
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+            alert("✅ Imagen pegada correctamente / Image pasted successfully.");
+            break;
+          }
+        }
+      } catch (err) {
+        alert("❌ No se pudo pegar la imagen. Usa Chrome o Edge. / Could not paste image. Use Chrome or Edge.");
+      }
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/service-worker.js')
+          .then(reg => console.log("SW registrado ✅", reg))
+          .catch(err => console.log("SW fallo ❌", err));
+      });
+    }
+  </script>
 </body>
 </html>
+
