@@ -1,4 +1,4 @@
-# 🌿 Powdery Mildew Detection App with Xception and MobileNet
+# 🌿 Powdery Mildew Detection App with Xception and MobileNet version original, please, check this https://github.com/jf-floresriera/powderyvision7
 
 > 🚀 Deep learning-based image classification tool for early detection of *powdery mildew* in crops. Deployed as a Flask web application.
 
